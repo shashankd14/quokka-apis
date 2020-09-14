@@ -79,7 +79,6 @@ public class ProjectController {
 				project.setFloorPlan(url);
 			}
 			Project p = (Project) this.projectRepo.save(project);
-			System.out.println(p.getProjectId());
 			for (MultipartFile image : images) {
 				ProjectImage projectImage = new ProjectImage();
 				String projectImageurl = uplodaToAzureStorage(image);
@@ -154,7 +153,7 @@ public class ProjectController {
     return new ResponseEntity("Project updated successfully", HttpStatus.OK);
   }
   
-  @PutMapping({"/addProjectAssetBundle"})
+  @PutMapping({"/addAssetBundle"})
   public String addProjectAssetBundle(@RequestParam("projectId") int projectId, @RequestParam("projectAssetBundle") MultipartFile assetBundle) {
     String assetBundleURL = uplodaToAzureStorage(assetBundle);
     Optional<Project> result = this.projectRepo.findById(Integer.valueOf(projectId));

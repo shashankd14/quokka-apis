@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.quokka.application.entity.User;
 
+import net.minidev.json.JSONObject;
+
 public interface UserService {
 
 	public User save(User user);
@@ -15,5 +17,9 @@ public interface UserService {
 	public void deleteById(int userId);
 	
 	public User verifyIfEmailIdExists(String email);
+	
+	public JSONObject getUserDetails(String userString);
+	
+	
 	
 }

@@ -1,8 +1,10 @@
 package com.quokka.application.dao;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.quokka.application.entity.User;
@@ -15,10 +17,15 @@ public class CustomUserDetails extends User implements UserDetails {
 		super(user);
 	}
 
-	@Override
-	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return null;
-	}
+	
+	 @Override
+	 public Collection<? extends GrantedAuthority> getAuthorities() {
+
+	        return getRoles()
+	                .stream()
+	                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getRoleName()))
+	                .collect(Collectors.toList());
+	    }
 
 	@Override
 	public String getPassword() {

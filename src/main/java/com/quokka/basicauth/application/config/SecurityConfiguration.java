@@ -1,12 +1,20 @@
-package com.quokka.application.config;
+package com.quokka.basicauth.application.config;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.quokka.application.dao.UserRepository;
@@ -20,13 +28,21 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	private  CustomUserDetailsService userDetailsService;
+	
 
-	@Override
-	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		
-		auth.userDetailsService(userDetailsService)
-			.passwordEncoder(extractedPassword());
-	}
+	
+	
+//	public Authentication authenticate(Authentication auth) throws AuthenticationException {
+//        String username = auth.getName();
+//        String password = auth.getCredentials().toString();
+//        
+//        System.out.println("username: "+username);
+//        System.out.println("password: "+password);
+//        // to add more logic
+//        List<GrantedAuthority> grantedAuths = new ArrayList<>();
+//        grantedAuths.add(new SimpleGrantedAuthority("ROLE_USER"));
+//        return new UsernamePasswordAuthenticationToken(username, password, grantedAuths);
+//    }
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
@@ -35,8 +51,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		http.authorizeRequests()
 			
 			.antMatchers("/user/add").permitAll()
+			.antMatchers("/user/getUserDetails").authenticated()
 			//.antMatchers("/api/**").authenticated()
 			.antMatchers("/api/**").authenticated()
+			
 			//.anyRequest().authenticated()
 			//.antMatchers("/api/**").authenticated()
 			.antMatchers("/").permitAll()
@@ -56,7 +74,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 			@Override
 			public boolean matches(CharSequence rawPassword, String encodedPassword) {
 				
-				System.out.println("raw password: " + rawPassword + "\t encoded password: "+ encodedPassword);
 				return rawPassword.equals(encodedPassword);
 			}
 			

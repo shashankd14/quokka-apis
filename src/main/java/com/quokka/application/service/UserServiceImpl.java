@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import com.quokka.application.dao.UserRepository;
 import com.quokka.application.entity.User;
 
+import net.minidev.json.JSONObject;
+
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -54,6 +56,21 @@ public class UserServiceImpl implements UserService {
 		
 		User user = userRepo.verifyIfEmailIdExists(email);
 
+		return user;
+	}
+
+	@Override
+	public JSONObject getUserDetails(String userString) {
+		
+		JSONObject user = null;
+		if(userString.contains("@")) {
+			
+			user = userRepo.getUserDetailsByEmailId(userString);
+		}
+		else
+			
+			user = userRepo.getUserDetailsByPhoneNumber(userString);
+		
 		return user;
 	}
 

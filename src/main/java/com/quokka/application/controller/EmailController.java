@@ -30,16 +30,14 @@ public class EmailController {
 	private UserRepository userRepo;
 	
 	@RequestMapping("/sendEmail")
-	public ResponseEntity<Object>  sendEmail(@RequestParam("email") String email) {
-		
+	public ResponseEntity<Object> sendEmail(@RequestParam("email") String email) {
+
 		User user = userService.verifyIfEmailIdExists(email);
-		
-		if(user != null) {
-			
+
+		if (user != null) {
+
 			Integer otp = OTPgenerator();
-			
-			System.out.println("OTP  "+otp);
-			
+
 //			Optional<User> result = this.userRepo.findById(user.getUserId());
 //			
 //			User theUser = null;
@@ -51,31 +49,29 @@ public class EmailController {
 //			}
 //			
 //			theUser.setOtp(otp);
-			
+
 			user.setOtp(otp);
-			
+
 			SimpleMailMessage msg = new SimpleMailMessage();
-	        msg.setTo(email);
+			msg.setTo(email);
 
-	       
-	        msg.setSubject("OTP for Quokka");
-	        msg.setText("Greetings from Quokka!! \n As requested, your one time password to access quokka is: "+otp);
+			msg.setSubject("OTP for Quokka");
+			msg.setText("Greetings from Quokka!! \n As requested, your one time password to access quokka is: " + otp);
 
-	        javaMailSender.send(msg);
-	        
-	        user.setOtp(otp);
-	        userService.save(user);
-	        
-	        return new ResponseEntity("success", HttpStatus.OK);
-	        
-	        
+			javaMailSender.send(msg);
+
+			user.setOtp(otp);
+			userService.save(user);
+
+			return new ResponseEntity("success", HttpStatus.OK);
+
 		}
-		
+
 		else {
-			
+
 			return new ResponseEntity("no email", HttpStatus.NO_CONTENT);
 		}
-		
+
 	}
 	
 	public int OTPgenerator(){

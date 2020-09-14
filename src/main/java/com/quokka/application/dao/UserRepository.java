@@ -2,6 +2,8 @@ package com.quokka.application.dao;
 
 import com.quokka.application.entity.User;
 
+import net.minidev.json.JSONObject;
+
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,5 +19,10 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 	@Query(nativeQuery = true, value = "SELECT * from users where email= :email")
 	public User verifyIfEmailIdExists(@Param("email") String email);
 	
+	@Query(nativeQuery = true, value = "SELECT userId from users where email = :userString")
+	public JSONObject getUserDetailsByEmailId(@Param("userString") String userString);
+	
+	@Query(nativeQuery = true, value = "SELECT userId from users where phone_number= :userString")
+	public JSONObject getUserDetailsByPhoneNumber(@Param("userString") String userString);
 	
 }

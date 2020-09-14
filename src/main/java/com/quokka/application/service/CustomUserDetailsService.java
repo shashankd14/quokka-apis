@@ -20,39 +20,20 @@ public class CustomUserDetailsService implements UserDetailsService {
 	
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		
-		System.out.println("username"+username);
-		//Optional<User> optionalUser = userRepo.findByEmail(username);
-		
-		
-		Optional<User> optionalUser = null;
-		
-		System.out.println("here22");
-		
-		if (username.contains("@")) {
-			
-			optionalUser = userRepo.findByEmail(username);
-		
-		}
-		
-		else {
-			
-			optionalUser = userRepo.findByPhoneNumber(username);
-		}
-			
 
-//		else
-//			optionalUser = userRepo.findByPhoneNumber(username);
-		
-		System.out.println("optionalUser "+optionalUser);
-		//System.out.println("optionalUser phone Number "+optionalUser1);
-		optionalUser
-			.orElseThrow(() -> new UsernameNotFoundException("user not found"));
-		
-		
-		return optionalUser
-				.map(CustomUserDetails::new).get();
-		}
+		Optional<User> optionalUser = null;
+
+		if (username.contains("@"))
+			optionalUser = userRepo.findByEmail(username);
+
+		else
+			optionalUser = userRepo.findByPhoneNumber(username);
+
+		optionalUser.orElseThrow(() -> new UsernameNotFoundException("user not found"));
+
+		return optionalUser.map(CustomUserDetails::new).get();
+	}
 	
+
 
 }

@@ -11,17 +11,20 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping({"/cart"})
+@RequestMapping({"/api/cart"})
 public class CartController {
   @Autowired
   private CartService cartService;
   
-  @PostMapping({"/addToCart"})
-  public Cart addToCart(@RequestParam("userId") int userId, @RequestParam("productId") int productId, @RequestParam("variant") String variant, @RequestParam("quantity") int quantity) {
-    return this.cartService.addToCart(userId, productId, quantity, variant);
-  }
+  @PostMapping({"/add"})
+	public Cart addToCart(@RequestParam("userId") int userId, 
+			@RequestParam("productId") int productId,
+			@RequestParam("variant") String variant, 
+			@RequestParam("quantity") int quantity) {
+		return this.cartService.addToCart(userId, productId, quantity, variant);
+	}
   
-  @GetMapping({"/cartItems"})
+  @GetMapping({"/list"})
   public ResponseEntity<Object> cartItems(@RequestParam("userId") int userId) {
     return this.cartService.cartItems(userId);
   }

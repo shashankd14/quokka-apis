@@ -35,13 +35,13 @@ public class ProjectProductController {
   public ResponseEntity<Object> getAllProductsByProjectIdUI(@PathVariable int projectId) {
     List<JSONObject[]> entities = (List)new ArrayList<>();
     entities = this.productSvc.getAllProductsByProjectIdUI(projectId);
-    return new ResponseEntity(entities, HttpStatus.OK);
+    return new ResponseEntity<Object>(entities, HttpStatus.OK);
   }
   
   @GetMapping({"/listHL/{projectId}"})
   public ResponseEntity<Object> getAllProductsByProjectIdHL(@PathVariable int projectId) {
     List<JSONObject[]> entities = (List)new ArrayList<>();
     entities = this.prjctPrdctSvc.getAllProductsByProjectIdHL(projectId);
-    return new ResponseEntity(entities, HttpStatus.OK);
+    return new ResponseEntity<Object>(entities, HttpStatus.OK);
   }
 }

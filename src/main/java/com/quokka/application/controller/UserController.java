@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.quokka.application.entity.User;
 import com.quokka.application.service.UserService;
 
+import net.minidev.json.JSONObject;
+
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -49,7 +51,6 @@ public class UserController {
 			user.setUpdatedOn(timestamp);
 			
 			user.setIsDeleted(false);
-			user.setIsSuperAdmin(false);
 			
 			User savedUser = userService.save(user);
 
@@ -88,7 +89,6 @@ public class UserController {
 			user.setUpdatedOn(timestamp);
 			
 			user.setIsDeleted(false);
-			user.setIsSuperAdmin(false);
 			
 			User updatedUser = userService.save(user);
 
@@ -148,6 +148,28 @@ public class UserController {
 			return new ResponseEntity<Object>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		
+	
+		
+	}
+	
+	@GetMapping("/getDetails")
+	public ResponseEntity<Object> getUserId(@RequestParam("userString") String userString){
+		
+		 try {
+			 
+			 JSONObject user = userService.getUserDetails(userString);
+			 
+//			 if(user == null) {
+//				 return new ResponseEntity<Object>("user not found", HttpStatus.INTERNAL_SERVER_ERROR);
+//			 }
+			 return new ResponseEntity<Object>(user, HttpStatus.OK);
+			 
+		 }catch (Exception e) {
+			 
+			 e.printStackTrace();
+			 return new ResponseEntity<Object>("error occured", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+        
 	}
 
 }

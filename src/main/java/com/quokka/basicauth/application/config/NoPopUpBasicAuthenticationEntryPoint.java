@@ -1,4 +1,4 @@
-package com.quokka.application.config;
+package com.quokka.basicauth.application.config;
 
 import java.io.IOException;
 

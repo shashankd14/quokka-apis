@@ -1,14 +1,28 @@
 package com.quokka.application.entity;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.core.sym.Name;
 
 @Entity
 @Table(name = "users")
@@ -26,12 +40,12 @@ public class User {
 		this.phoneNumber = user.getPhoneNumber();
 		this.password = user.getPassword();
 		this.otp = user.getOtp();
-		this.isSuperAdmin = user.getIsSuperAdmin();
 		this.createdBy = user.getCreatedBy();
 		this.updatedBy = user.getUpdatedBy();
 		this.createdOn = user.getCreatedOn();
 		this.updatedOn = user.getUpdatedOn();
 		this.isDeleted = user.getIsDeleted();
+		this.roles = user.getRoles();
 		
 	}
 	@Id
@@ -54,9 +68,6 @@ public class User {
 	@Column(name = "otp")
 	private Integer otp;
 	
-	@Column(name = "issuperadmin", columnDefinition = "BIT")
-	private Boolean isSuperAdmin;
-
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "createdon")
 	private Date createdOn;
@@ -67,12 +78,21 @@ public class User {
 
 	@Column(name = "createdby")
 	private int createdBy;
-
+	
 	@Column(name = "updatedby")
 	private int updatedBy;
 
 	@Column(name = "isdeleted", columnDefinition = "BIT")
 	private Boolean isDeleted;
+	
+	@JsonManagedReference
+	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_role",
+            joinColumns =@JoinColumn(name = "userid"),
+            inverseJoinColumns = @JoinColumn(name = "roleid")
+            )
+	private List<Role> roles = new ArrayList<Role>();
 
 	public int getCreatedBy() {
 		return this.createdBy;
@@ -124,10 +144,6 @@ public class User {
 		this.otp = otp;
 	}
 
-	public void setIsSuperAdmin(Boolean isSuperAdmin) {
-		this.isSuperAdmin = isSuperAdmin;
-	}
-
 	public String getPhoneNumber() {
 		return this.phoneNumber;
 	}
@@ -160,10 +176,6 @@ public class User {
 		this.isDeleted = isDeleted;
 	}
 
-	public Boolean getIsSuperAdmin() {
-		return isSuperAdmin;
-	}
-
 	public String getUsername() {
 		return username;
 	}
@@ -172,13 +184,22 @@ public class User {
 		this.username = username;
 	}
 
+	
+	public List<Role> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(List<Role> roles) {
+		this.roles = roles;
+	}
+
 	@Override
 	public String toString() {
-		return "User [username=" + username + ", email=" + email + ", password=" + password + ", phoneNumber="
-				+ phoneNumber + ", otp=" + otp + ", isSuperAdmin=" + isSuperAdmin + ", createdOn=" + createdOn
-				+ ", updatedOn=" + updatedOn + ", createdBy=" + createdBy + ", updatedBy=" + updatedBy + ", isDeleted="
-				+ isDeleted + "]";
+		return "User [userId=" + userId + ", username=" + username + ", email=" + email + ", password=" + password
+				+ ", phoneNumber=" + phoneNumber + ", otp=" + otp + ", createdBy=" + createdBy + ", updatedBy="
+				+ updatedBy + ", isDeleted=" + isDeleted + ", roles=" + roles + "]";
 	}
+
 	
 	
 	
