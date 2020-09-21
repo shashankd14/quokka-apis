@@ -11,7 +11,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 @Entity
-@Table(name = "Cart")
+@Table(name = "cart")
 public class Cart {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,6 +29,9 @@ public class Cart {
 
 	@Column(name = "variant")
 	private String variant;
+	
+	@Column(name = "orderid")
+	private int orderId;
 
 	@Column(name = "updatedby")
 	private int updatedBy;
@@ -82,6 +85,14 @@ public class Cart {
 
 	public void setVariant(String variant) {
 		this.variant = variant;
+	}
+
+	public int getOrderId() {
+		return orderId;
+	}
+
+	public void setOrderId(int orderId) {
+		this.orderId = orderId;
 	}
 
 	public int getUpdatedBy() {

@@ -4,23 +4,27 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.quokka.application.dao.OrderRepository;
 import com.quokka.application.entity.Order;
 
+import net.minidev.json.JSONObject;
+
+@Service
 public class OrderServiceImpl implements OrderService {
 
 	@Autowired
 	private OrderRepository orderRepo;
 	
 	@Override
-	public Order addNew(Order order) {
+	public Order add(Order order) {
 		return orderRepo.save(order);
 	}
 
 	@Override
-	public Order update(Order order) {
-		return orderRepo.save(order);
+	public Order updateStatus(int orderId, int statusId) {
+		return orderRepo.updateStatus(orderId, statusId);
 	}
 
 	@Override
@@ -38,15 +42,17 @@ public class OrderServiceImpl implements OrderService {
 		if (result.isPresent()) {
 			theOrder = result.get();
 		} else {
-			throw new RuntimeException("Did not find employee id - " + id);
+			throw new RuntimeException("Did not find order id - " + id);
 		}
 
 		return theOrder;
 	}
 
 	@Override
-	public void deleteById(int id) {
-		orderRepo.deleteById(id);
+	public List<JSONObject> getOrderItems(int userId) {
+		
+		return orderRepo.getOrderItems(userId);
 	}
+
 
 }

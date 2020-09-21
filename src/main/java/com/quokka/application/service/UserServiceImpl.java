@@ -41,8 +41,9 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public List<User> getAll() {
-		return userRepo.findAll();
+	public List<User> getAll(int createdBy) {
+		//return userRepo.findAll();
+		return userRepo.getCustomersByManufacturer(createdBy);
 	}
 
 	@Override
@@ -62,16 +63,18 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public JSONObject getUserDetails(String userString) {
 		
-		JSONObject user = null;
+		User user = null;
+		
+		JSONObject entity = new JSONObject();
 		if(userString.contains("@")) {
 			
-			user = userRepo.getUserDetailsByEmailId(userString);
+			entity = userRepo.getUserDetailsByEmailId(userString);
 		}
 		else
 			
-			user = userRepo.getUserDetailsByPhoneNumber(userString);
+			entity = userRepo.getUserDetailsByPhoneNumber(userString);
 		
-		return user;
+		return entity;
 	}
 
 

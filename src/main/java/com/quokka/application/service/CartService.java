@@ -1,10 +1,18 @@
 package com.quokka.application.service;
 
+import java.util.List;
+
 import com.quokka.application.entity.Cart;
-import org.springframework.http.ResponseEntity;
+
+import net.minidev.json.JSONObject;
 
 public interface CartService {
-  ResponseEntity<Object> cartItems(int paramInt);
-  
-	Cart addToCart(int paramInt1, int paramInt2, int paramInt3, String paramString);
+	
+	public List<Cart> getCartItems(int userId);
+
+	public Cart addToCart(Cart cart);
+	
+	public Cart update(Cart cart);
+	
+	public Cart getById(int cardId);
 }

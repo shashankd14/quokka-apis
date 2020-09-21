@@ -10,6 +10,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,12 +21,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.microsoft.azure.storage.CloudStorageAccount;
-import com.microsoft.azure.storage.StorageException;
-import com.microsoft.azure.storage.blob.CloudBlobClient;
-import com.microsoft.azure.storage.blob.CloudBlobContainer;
-import com.microsoft.azure.storage.blob.CloudBlockBlob;
-import com.microsoft.azure.storage.blob.StandardBlobTier;
+import com.google.cloud.storage.Blob;
+import com.google.cloud.storage.BlobId;
+import com.google.cloud.storage.BlobInfo;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
 import com.quokka.application.dao.ProductCategoryRepository;
 import com.quokka.application.dao.ProductImageRepository;
 import com.quokka.application.dao.ProductRepository;
@@ -44,6 +44,7 @@ import com.quokka.application.service.ProductService;
 import net.minidev.json.JSONObject;
 
 @RestController
+@CrossOrigin
 @RequestMapping({"/api/product"})
 public class ProductController {
   @Autowired
@@ -54,9 +55,6 @@ public class ProductController {
   
   @Autowired
   private TagRepository tagRepository;
-  
-  @Autowired
-  private CloudStorageAccount cloudStorageAccount;
   
   @Autowired
   private ProductCategoryRepository productCategoryRepository;
@@ -96,7 +94,8 @@ public class ProductController {
 			@RequestParam(value = "product3DModel", required = false) MultipartFile product3DModel,
 			@RequestParam(value = "assetBundle", required = false) MultipartFile assetBundle,
 			@RequestParam(value = "tags", required = false) String[] tags,
-			@RequestParam("image") List<MultipartFile> images
+			@RequestParam("image") List<MultipartFile> images,
+			@RequestParam("userId") int userId
 			) {
 		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 		Product product = new Product();
@@ -157,16 +156,16 @@ public class ProductController {
 				tagList.add(tag);
 			}
 			product.setTags(tagList);
-			String thumbnailImageURL = uplodaToAzureStorage(thumbnailImage);
+			String thumbnailImageURL = uploadToBucket(thumbnailImage);
 			product.setThumbnailImageURL(thumbnailImageURL);
 			if (assetBundle != null) {
-				String assetBundleURL = uplodaToAzureStorage(assetBundle);
+				String assetBundleURL = uploadToBucket(assetBundle);
 				product.setAssetBundle(assetBundleURL);
 			} else {
 				product.setAssetBundle(null);
 			}
 			if (product3DModel != null) {
-				String product3DModelUrl = uplodaToAzureStorage(product3DModel);
+				String product3DModelUrl = uploadToBucket(product3DModel);
 				product.setProduct3DModelUrl(product3DModelUrl);
 			} else {
 				product.setProduct3DModelUrl(null);
@@ -174,13 +173,13 @@ public class ProductController {
 			product.setUploadStatus(Integer.valueOf(5));
 			product.setCreatedOn(timestamp);
 			product.setUpdatedOn(timestamp);
-			product.setCreatedBy(1);
-			product.setUpdatedBy(1);
+			product.setCreatedBy(userId);
+			product.setUpdatedBy(userId);
 			product.setIsDeleted(Boolean.valueOf(false));
 			Product theProduct = this.productService.addProduct(product);
 			for (MultipartFile image : images) {
 				ProductImage productImage = new ProductImage();
-				String productImageurl = uplodaToAzureStorage(image);
+				String productImageurl = uploadToBucket(image);
 				productImage.setImageId(0);
 				productImage.setImageUrl(productImageurl);
 				productImage.setProduct(theProduct);
@@ -220,7 +219,8 @@ public class ProductController {
 			@RequestParam(value = "assetBundle", required = false) MultipartFile assetBundle,
 			@RequestParam(value = "tags", required = false) String[] tags,
 			@RequestParam("image") List<MultipartFile> images,
-			@RequestParam(value = "imageId", required = false) int[] imageIds) {
+			@RequestParam(value = "imageId", required = false) int[] imageIds,
+			@RequestParam("userId") int userId) {
 		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 		Optional<Product> result = this.productRepository.findById(Integer.valueOf(productId));
 		Product product = null;
@@ -284,12 +284,12 @@ public class ProductController {
 			product.setTags(tagList);
 			
 			if(thumbnailImage != null) {
-				String thumbnailImageURL = uplodaToAzureStorage(thumbnailImage);
+				String thumbnailImageURL = uploadToBucket(thumbnailImage);
 				product.setThumbnailImageURL(thumbnailImageURL);
 			}
 			
 			if (assetBundle != null) {
-				String assetBundleURL = uplodaToAzureStorage(assetBundle);
+				String assetBundleURL = uploadToBucket(assetBundle);
 				product.setAssetBundle(assetBundleURL);
 			} else {
 				product.setAssetBundle(null);
@@ -297,14 +297,14 @@ public class ProductController {
 			
 			if(product3DModel != null) {
 				
-				String product3DModelUrl = uplodaToAzureStorage(product3DModel);
+				String product3DModelUrl = uploadToBucket(product3DModel);
 				product.setProduct3DModelUrl(product3DModelUrl);
 			}
 			
-			product.setCreatedOn(timestamp);
+			//product.setCreatedOn(timestamp);
 			product.setUpdatedOn(timestamp);
-			product.setCreatedBy(1);
-			product.setUpdatedBy(1);
+			//product.setCreatedBy(1);
+			product.setUpdatedBy(userId);
 			product.setIsDeleted(Boolean.valueOf(false));
 			Product theProduct = this.productService.addProduct(product);
 			
@@ -318,7 +318,7 @@ public class ProductController {
 			
 			for (MultipartFile image : images) {
 				ProductImage productImage = new ProductImage();
-				String productImageurl = uplodaToAzureStorage(image);
+				String productImageurl = uploadToBucket(image);
 				productImage.setImageId(0);
 				productImage.setImageUrl(productImageurl);
 				productImage.setProduct(theProduct);
@@ -365,12 +365,12 @@ public class ProductController {
   
   @GetMapping({"/list"})
   //@PreAuthorize()
-  public ResponseEntity<Object> getAll() {
+  public ResponseEntity<Object> getAll(@RequestParam("manufacturerId") int userId) {
     try {
-      List<Product> productList = this.productService.findAll();
-      return new ResponseEntity(productList, HttpStatus.OK);
+      List<Product> productList = this.productService.findAll(userId);
+      return new ResponseEntity<Object>(productList, HttpStatus.OK);
     } catch (Exception e) {
-      return new ResponseEntity(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+      return new ResponseEntity<Object>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     } 
   }
   
@@ -384,7 +384,7 @@ public class ProductController {
 	public String addAssetBundle(
 			@RequestParam("productId") int productId,
 			@RequestParam("assetBundle") MultipartFile assetBundle) {
-		String assetBundleURL = uplodaToAzureStorage(assetBundle);
+		String assetBundleURL = uploadToBucket(assetBundle);
 		Optional<Product> result = this.productRepository.findById(Integer.valueOf(productId));
 		Product theProduct = null;
 		if (result.isPresent()) {
@@ -440,21 +440,32 @@ public class ProductController {
 //    } 
 //  }
   
-  public String uplodaToAzureStorage(MultipartFile file) {
-    CloudBlockBlob blob = null;
-    try {
-      CloudBlobClient blobClient = this.cloudStorageAccount.createCloudBlobClient();
-      CloudBlobContainer container = blobClient.getContainerReference("product");
-      blob = container.getBlockBlobReference(file.getOriginalFilename());
-      blob.upload(file.getInputStream(), -1L);
-      blob.uploadStandardBlobTier(StandardBlobTier.COOL);
-    } catch (URISyntaxException e) {
-      e.printStackTrace();
-    } catch (StorageException e) {
-      e.printStackTrace();
-    } catch (IOException e) {
-      e.printStackTrace();
-    } 
-    return blob.getUri().toString();
-  }
+	
+	
+	public String uploadToBucket(@RequestParam("file") MultipartFile file) {
+
+		String uploadUrl = "";
+		try {
+			String projectId = "quokka-project-alpha";
+			String bucketName = "quokka-product-uploads";
+			String fileName = file.getOriginalFilename();
+
+			Storage storage = StorageOptions.newBuilder().setProjectId(projectId).build().getService();
+
+			BlobId blobId = BlobId.of(bucketName, fileName);
+
+			BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
+
+			byte[] bytes = file.getBytes();
+
+			Blob blob = storage.create(blobInfo, bytes);
+
+			uploadUrl = blob.getSelfLink();
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return uploadUrl;
+	}
 }

@@ -16,14 +16,27 @@
 	<description>Demo project for Spring Boot</description>
 
 	<properties>
-		<java.version>1.8</java.version>
+		<java.version>11</java.version>
 	</properties>
+	
+	<dependencyManagement>
+	   <dependencies>
+	       <dependency>
+	           <groupId>org.springframework.cloud</groupId>
+	           <artifactId>spring-cloud-gcp-dependencies</artifactId>
+	           <version>1.2.3.RELEASE</version>
+	           <type>pom</type>
+	           <scope>import</scope>
+	       </dependency>
+	   </dependencies>
+	</dependencyManagement>
 
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
+		
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -40,6 +53,24 @@
             <groupId>org.springframework.boot</groupId>  
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
+	
+	<!-- Spring security dependency -->	
+		<dependency>
+	      <groupId>org.springframework.cloud</groupId>
+	      <artifactId>spring-cloud-gcp-starter</artifactId>
+    	</dependency>
+	
+	<!-- MYSQL on GCP dependency -->	
+		<dependency>
+	      <groupId>org.springframework.cloud</groupId>
+	      <artifactId>spring-cloud-gcp-starter-sql-mysql</artifactId>
+	    </dependency>
+		
+	<!-- GCP storage  dependency -->
+		<dependency>
+		    <groupId>org.springframework.cloud</groupId>
+		    <artifactId>spring-cloud-gcp-starter-storage</artifactId>
+		</dependency>
         
     <!-- send email -->
         <dependency>
@@ -61,6 +92,12 @@
 		</dependency>
 		
 		<dependency>
+			<groupId>com.google.cloud.sql</groupId>
+			<artifactId>mysql-socket-factory</artifactId>
+			<version>1.0.2</version>
+		</dependency>
+		
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
@@ -72,14 +109,7 @@
 			</exclusions>
 		</dependency>
 		
-		<!-- https://mvnrepository.com/artifact/com.microsoft.azure/azure-storage -->
-		<dependency>
-		   <groupId>com.microsoft.azure</groupId>
-		   <artifactId>spring-azure-starter-storage</artifactId>
-		   <version>1.0.0.M2</version>
-		</dependency>
-		
-		 <!-- JWT dependencies -->
+		<!-- JWT dependencies -->
         <dependency>
 	        <groupId>io.jsonwebtoken</groupId>
 	        <artifactId>jjwt</artifactId>
@@ -94,7 +124,25 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>2.3.3.RELEASE</version>
+          		<executions>
+              		<execution>
+	                  <goals>
+	                      <goal>repackage</goal>
+	                  </goals>
+              	</execution>
+          		</executions>
 			</plugin>
+			
+			<plugin>
+			  <groupId>com.google.cloud.tools</groupId>
+			  <artifactId>appengine-maven-plugin</artifactId>
+			  <version>2.2.0</version>
+			  <configuration>
+   			 <deploy.projectId>quokka-project-alpha</deploy.projectId>
+   			 <deploy.version>app-gcp</deploy.version>
+  		  </configuration>
+        </plugin>
 		</plugins>
 	</build>
 

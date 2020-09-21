@@ -58,6 +58,8 @@ public class JWTWebSecurityConfig extends WebSecurityConfigurerAdapter {
 		httpSecurity.csrf().disable().exceptionHandling()
 				.authenticationEntryPoint(jwtUnAuthorizedResponseAuthenticationEntryPoint).and().sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
+				.antMatchers("/user/add").permitAll()
+				.antMatchers("/authenticate").permitAll()
 				.antMatchers("/api/product/add").hasAuthority("ROLE_MANUFACTURER")
 				.antMatchers("/api/product/update").hasAuthority("ROLE_MANUFACTURER")
 				.antMatchers("/api/product/delete").hasAuthority("ROLE_MANUFACTURER")

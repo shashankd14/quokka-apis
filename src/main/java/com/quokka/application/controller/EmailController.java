@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,6 +19,7 @@ import com.quokka.application.entity.User;
 import com.quokka.application.service.UserService;
 
 @RestController
+@CrossOrigin
 public class EmailController {
 
 	@Autowired
@@ -63,13 +65,13 @@ public class EmailController {
 			user.setOtp(otp);
 			userService.save(user);
 
-			return new ResponseEntity("success", HttpStatus.OK);
+			return new ResponseEntity<Object>("success", HttpStatus.OK);
 
 		}
 
 		else {
 
-			return new ResponseEntity("no email", HttpStatus.NO_CONTENT);
+			return new ResponseEntity<Object>("no email", HttpStatus.NO_CONTENT);
 		}
 
 	}

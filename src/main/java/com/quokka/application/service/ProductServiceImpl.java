@@ -47,8 +47,8 @@ public class ProductServiceImpl implements ProductService {
 		return theProduct;
 	}
 
-	public List<Product> findAll() {
-		return this.productRepo.findAll();
+	public List<Product> findAll(int userId) {
+		return this.productRepo.getProductsByManufacturerId(userId);
 	}
 
 	public void updateProductStatus(int productId, int statusId) {

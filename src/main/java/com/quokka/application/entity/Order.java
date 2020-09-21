@@ -29,14 +29,11 @@ public class Order {
 	@Column(name = "address")
 	private String address;
 
-	@Column(name = "status")
-	private String status;
+	@Column(name = "statusid")
+	private int statusId;
 
 	@Column(name = "ordertotal")
 	private double orderTotal;
-
-	@Column(name = "userid")
-	private int userId;
 
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "createdon")
@@ -49,10 +46,6 @@ public class Order {
 	@Column(name = "isdeleted", columnDefinition = "BIT")
 	private Boolean isDeleted;
 
-	@JsonBackReference
-	@ManyToMany(fetch = FetchType.LAZY, mappedBy = "orders")
-	List<Product> products;
-
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "createdby")
 	private User createdBy;
@@ -61,20 +54,12 @@ public class Order {
 	@JoinColumn(name = "updatedby")
 	private User updatedBy;
 
-	public List<Product> getProducts() {
-		return this.products;
-	}
-
 	public User getUser() {
 		return this.createdBy;
 	}
 
 	public void setUser(User user) {
 		this.createdBy = user;
-	}
-
-	public void setProducts(List<Product> products) {
-		this.products = products;
 	}
 
 	public int getOrderId() {
@@ -93,12 +78,12 @@ public class Order {
 		this.address = address;
 	}
 
-	public String getStatus() {
-		return this.status;
+	public int getStatusId() {
+		return statusId;
 	}
 
-	public void setStatus(String status) {
-		this.status = status;
+	public void setStatusId(int statusId) {
+		this.statusId = statusId;
 	}
 
 	public double getOrderTotal() {
@@ -107,14 +92,6 @@ public class Order {
 
 	public void setOrderTotal(double orderTotal) {
 		this.orderTotal = orderTotal;
-	}
-
-	public int getUserId() {
-		return this.userId;
-	}
-
-	public void setUserId(int userId) {
-		this.userId = userId;
 	}
 
 	public User getCreatedBy() {

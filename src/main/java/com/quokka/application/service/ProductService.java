@@ -19,7 +19,7 @@ public interface ProductService {
 
 	public Product addAssetBundle(int projectId, String assetBundleUrl);
 
-	public List<Product> findAll();
+	public List<Product> findAll(int manufacuturerId);
 
 	public void updateProductStatus(int paramInt1, int paramInt2);
 }

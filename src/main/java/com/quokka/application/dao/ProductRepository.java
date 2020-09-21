@@ -34,4 +34,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 	@Transactional
 	@Query(nativeQuery = true, value = "delete from products where productId = :productId")
 	public void deleteByProductId(@Param("productId") int productId);
+	
+	@Query(nativeQuery = true, value = "select * from products where createdBy= :userId")
+	public  List<Product> getProductsByManufacturerId(@Param("userId") int userId);
 }

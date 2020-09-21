@@ -1,29 +1,16 @@
 package com.quokka.application.controller;
 
-import com.microsoft.azure.storage.CloudStorageAccount;
-import com.microsoft.azure.storage.StorageException;
-import com.microsoft.azure.storage.blob.CloudBlobClient;
-import com.microsoft.azure.storage.blob.CloudBlobContainer;
-import com.microsoft.azure.storage.blob.CloudBlockBlob;
-import com.microsoft.azure.storage.blob.StandardBlobTier;
-import com.quokka.application.dao.FloorPlanRepository;
-import com.quokka.application.dao.ProjectImageRepository;
-import com.quokka.application.dao.ProjectRepository;
-import com.quokka.application.entity.Project;
-import com.quokka.application.entity.ProjectImage;
-import com.quokka.application.service.ProjectImageService;
-import com.quokka.application.service.ProjectService;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import net.minidev.json.JSONObject;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,7 +21,23 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.google.cloud.storage.Blob;
+import com.google.cloud.storage.BlobId;
+import com.google.cloud.storage.BlobInfo;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
+import com.quokka.application.dao.FloorPlanRepository;
+import com.quokka.application.dao.ProjectImageRepository;
+import com.quokka.application.dao.ProjectRepository;
+import com.quokka.application.entity.Project;
+import com.quokka.application.entity.ProjectImage;
+import com.quokka.application.service.ProjectImageService;
+import com.quokka.application.service.ProjectService;
+
+import net.minidev.json.JSONObject;
+
 @RestController
+@CrossOrigin
 @RequestMapping({"/api/project"})
 public class ProjectController {
   @Autowired
@@ -42,9 +45,6 @@ public class ProjectController {
   
   @Autowired
   private FloorPlanRepository floorPlanRepo;
-  
-  @Autowired
-  private CloudStorageAccount cloudStorageAccount;
   
   @Autowired
   private ProjectService projectService;
@@ -60,7 +60,8 @@ public class ProjectController {
 			@RequestParam("noOfFloors") int noOfFloors,
 			@RequestParam(value = "description", required = false) String description,
 			@RequestParam(value = "floorPlan", required = false) MultipartFile floorPlan,
-			@RequestParam(value = "image", required = false) List<MultipartFile> images) {
+			@RequestParam(value = "image", required = false) List<MultipartFile> images,
+			@RequestParam("userId") int userId) {
 		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 		try {
 			Project project = new Project();
@@ -69,19 +70,19 @@ public class ProjectController {
 			project.setNoOfFloors(noOfFloors);
 			project.setUploadStatus(3);
 			project.setDescription(description);
-			project.setCreatedBy(1);
-			project.setUpdatedBy(1);
+			project.setCreatedBy(userId);
+			project.setUpdatedBy(userId);
 			project.setCreatedOn(timestamp);
 			project.setUpdatedOn(timestamp);
 			project.setIsDeleted(Boolean.valueOf(false));
 			if (floorPlan != null) {
-				String url = uplodaToAzureStorage(floorPlan);
+				String url = uploadToBucket(floorPlan);
 				project.setFloorPlan(url);
 			}
 			Project p = (Project) this.projectRepo.save(project);
 			for (MultipartFile image : images) {
 				ProjectImage projectImage = new ProjectImage();
-				String projectImageurl = uplodaToAzureStorage(image);
+				String projectImageurl = uploadToBucket(image);
 				projectImage.setImageId(0);
 				projectImage.setImageUrl(projectImageurl);
 				projectImage.setProjectId(p.getProjectId());
@@ -93,9 +94,9 @@ public class ProjectController {
 				this.projectImageRepo.save(projectImage);
 			}
 		} catch (Exception e) {
-			return new ResponseEntity(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<Object>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		return new ResponseEntity("Project saved", HttpStatus.OK);
+		return new ResponseEntity<Object>("Project saved", HttpStatus.OK);
 	}
   
   @PutMapping({"/update"})
@@ -104,41 +105,51 @@ public class ProjectController {
 			@RequestParam(value = "description", required = false) String description,
 			@RequestParam(value = "floorPlan", required = false) MultipartFile floorPlan,
 			@RequestParam(value = "image", required = false) List<MultipartFile> images,
-			@RequestParam(value = "imageId", required = false) int[] imageIds) {
-		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-		Project project = new Project();
-		project.setProjectId(projectId);
-		project.setName(name);
-		project.setNoOfFloors(noOfFloors);
-		project.setUploadStatus(5);
-		project.setDescription(description);
-		project.setCreatedBy(1);
-		project.setUpdatedBy(1);
-		project.setCreatedOn(timestamp);
-		project.setUpdatedOn(timestamp);
-		project.setIsDeleted(Boolean.valueOf(false));
-		if (floorPlan != null) {
-			String url = uplodaToAzureStorage(floorPlan);
-			project.setFloorPlan(url);
-		}
-		Project p = (Project) this.projectRepo.save(project);
-		for (MultipartFile image : images) {
-			ProjectImage projectImage = new ProjectImage();
-			String projectImageurl = uplodaToAzureStorage(image);
-			projectImage.setImageId(0);
-			projectImage.setImageUrl(projectImageurl);
-			projectImage.setProjectId(p.getProjectId());
-			projectImage.setCreatedBy(1);
-			projectImage.setUpdatedBy(1);
-			projectImage.setCreatedOn(timestamp);
-			projectImage.setUpdatedOn(timestamp);
-			projectImage.setDeleted(false);
-			this.projectImageRepo.save(projectImage);
-		}
-		if (imageIds != null)
-			for (int id : imageIds)
-				this.projectImgSvc.deleteProjectImageById(Integer.valueOf(id));
-		return new ResponseEntity("Project updated successfully", HttpStatus.OK);
+			@RequestParam(value = "imageId", required = false) int[] imageIds,
+			@RequestParam("userId") int userId) {
+	  
+	  Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+	  try {
+		  
+		  Project project = projectService.findById(projectId);
+			// project.setProjectId(projectId);
+			project.setName(name);
+			project.setNoOfFloors(noOfFloors);
+			project.setUploadStatus(5);
+			project.setDescription(description);
+			project.setCreatedBy(userId);
+			project.setUpdatedBy(userId);
+			project.setCreatedOn(timestamp);
+			project.setUpdatedOn(timestamp);
+			project.setIsDeleted(Boolean.valueOf(false));
+			if (floorPlan != null) {
+				String url = uploadToBucket(floorPlan);
+				project.setFloorPlan(url);
+			}
+			Project p = (Project) this.projectRepo.save(project);
+			for (MultipartFile image : images) {
+				ProjectImage projectImage = new ProjectImage();
+				String projectImageurl = uploadToBucket(image);
+				projectImage.setImageId(0);
+				projectImage.setImageUrl(projectImageurl);
+				projectImage.setProjectId(p.getProjectId());
+				projectImage.setCreatedBy(userId);
+				projectImage.setUpdatedBy(userId);
+				projectImage.setCreatedOn(timestamp);
+				projectImage.setUpdatedOn(timestamp);
+				projectImage.setDeleted(false);
+				this.projectImageRepo.save(projectImage);
+			}
+			if (imageIds != null)
+				for (int id : imageIds)
+					this.projectImgSvc.deleteProjectImageById(Integer.valueOf(id));
+			return new ResponseEntity<Object>("Project updated successfully", HttpStatus.OK);
+	  }catch(Exception e) {
+		  
+		  return new ResponseEntity<Object>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
+	  }
+		
+		
 	}
   
   @PutMapping({"/status-InProgress/{projectId}"})
@@ -155,7 +166,7 @@ public class ProjectController {
   
   @PutMapping({"/addAssetBundle"})
   public String addProjectAssetBundle(@RequestParam("projectId") int projectId, @RequestParam("projectAssetBundle") MultipartFile assetBundle) {
-    String assetBundleURL = uplodaToAzureStorage(assetBundle);
+    String assetBundleURL = uploadToBucket(assetBundle);
     Optional<Project> result = this.projectRepo.findById(Integer.valueOf(projectId));
     Project theProject = null;
     if (result.isPresent()) {
@@ -222,21 +233,30 @@ public class ProjectController {
     } 
   }
   
-  public String uplodaToAzureStorage(MultipartFile file) {
-    CloudBlockBlob blob = null;
-    try {
-      CloudBlobClient blobClient = this.cloudStorageAccount.createCloudBlobClient();
-      CloudBlobContainer container = blobClient.getContainerReference("project");
-      blob = container.getBlockBlobReference(file.getOriginalFilename());
-      blob.upload(file.getInputStream(), -1L);
-      blob.uploadStandardBlobTier(StandardBlobTier.COOL);
-    } catch (URISyntaxException e) {
-      e.printStackTrace();
-    } catch (StorageException e) {
-      e.printStackTrace();
-    } catch (IOException e) {
-      e.printStackTrace();
-    } 
-    return blob.getUri().toString();
-  }
+  public String uploadToBucket(@RequestParam("file") MultipartFile file) {
+
+		String uploadUrl = "";
+		try {
+			String projectId = "quokka-project-alpha";
+			String bucketName = "quokka-project-uploads";
+			String fileName = file.getOriginalFilename();
+
+			Storage storage = StorageOptions.newBuilder().setProjectId(projectId).build().getService();
+
+			BlobId blobId = BlobId.of(bucketName, fileName);
+
+			BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
+
+			byte[] bytes = file.getBytes();
+
+			Blob blob = storage.create(blobInfo, bytes);
+
+			uploadUrl = blob.getSelfLink();
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return uploadUrl;
+	}
 }

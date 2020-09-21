@@ -2,9 +2,7 @@ package com.quokka.application.entity;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -20,9 +18,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.core.sym.Name;
 
 @Entity
 @Table(name = "users")
@@ -44,6 +40,7 @@ public class User {
 		this.updatedBy = user.getUpdatedBy();
 		this.createdOn = user.getCreatedOn();
 		this.updatedOn = user.getUpdatedOn();
+		this.isActive = user.getIsActive();
 		this.isDeleted = user.getIsDeleted();
 		this.roles = user.getRoles();
 		
@@ -81,6 +78,9 @@ public class User {
 	
 	@Column(name = "updatedby")
 	private int updatedBy;
+	
+	@Column(name = "isactive", columnDefinition = "BIT")
+	private Boolean isActive;
 
 	@Column(name = "isdeleted", columnDefinition = "BIT")
 	private Boolean isDeleted;
@@ -168,6 +168,14 @@ public class User {
 		this.updatedOn = updatedOn;
 	}
 
+	public Boolean getIsActive() {
+		return isActive;
+	}
+
+	public void setIsActive(Boolean isActive) {
+		this.isActive = isActive;
+	}
+
 	public Boolean getIsDeleted() {
 		return this.isDeleted;
 	}
@@ -196,9 +204,12 @@ public class User {
 	@Override
 	public String toString() {
 		return "User [userId=" + userId + ", username=" + username + ", email=" + email + ", password=" + password
-				+ ", phoneNumber=" + phoneNumber + ", otp=" + otp + ", createdBy=" + createdBy + ", updatedBy="
-				+ updatedBy + ", isDeleted=" + isDeleted + ", roles=" + roles + "]";
+				+ ", phoneNumber=" + phoneNumber + ", otp=" + otp + ", createdOn=" + createdOn + ", updatedOn="
+				+ updatedOn + ", createdBy=" + createdBy + ", updatedBy=" + updatedBy + ", isActive=" + isActive
+				+ ", isDeleted=" + isDeleted + ", roles=" + roles + "]";
 	}
+
+	
 
 	
 	

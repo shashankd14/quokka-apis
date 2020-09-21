@@ -120,12 +120,7 @@ public class Product {
 	@JsonBackReference
 	private List<ProductImage> images;
 
-	@JsonManagedReference
-	@ManyToMany(fetch = FetchType.LAZY)
-	@JoinTable(name = "order_product", joinColumns = { @JoinColumn(name = "productid") }, inverseJoinColumns = {
-			@JoinColumn(name = "orderid") })
-	List<Order> orders;
-
+	
 	@ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH,
 			CascadeType.REFRESH })
 	@JoinTable(name = "product_tag", joinColumns = { @JoinColumn(name = "productid") }, inverseJoinColumns = {
@@ -152,14 +147,6 @@ public class Product {
 
 	public void setImages(List<ProductImage> images) {
 		this.images = images;
-	}
-
-	public List<Order> getOrders() {
-		return this.orders;
-	}
-
-	public void setOrders(List<Order> orders) {
-		this.orders = orders;
 	}
 
 	public int getProductId() {

@@ -4,17 +4,18 @@ import java.util.List;
 
 import com.quokka.application.entity.Order;
 
+import net.minidev.json.JSONObject;
+
 public interface OrderService {
 
-	Order addNew(Order order);
+	public Order add(Order order);
 	
-	Order update(Order order);
+	public Order updateStatus(int orderId, int statusId);
 	
-	List<Order> getAll ();
+	public List<Order> getAll ();
 	
-	Order getById (int id);
-	
-	void deleteById(int id);
-	
+	public Order getById (int id);
+
+	public List<JSONObject> getOrderItems(int userId);
 	
 }

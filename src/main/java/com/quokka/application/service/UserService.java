@@ -12,7 +12,7 @@ public interface UserService {
 	
 	public User getById(int userId);
 	
-	public List<User>getAll();
+	public List<User>getAll(int createdBy);
 	
 	public void deleteById(int userId);
 	
