@@ -33,15 +33,15 @@ public class ProjectServiceImpl implements ProjectService {
     return project;
   }
   
-  public List<JSONObject> getAllProjects() {
-    return this.projectRepo.getAllProjects();
+  public List<JSONObject> getAllProjects(int userId) {
+    return this.projectRepo.getAllProjects(userId);
   }
   
   public void deleteProject(int projectId) {
     this.projectRepo.deleteById(Integer.valueOf(projectId));
   }
   
-  public List<JSONObject[]> findProjectDetailsByUserId(int userId) {
+  public List<Project> findProjectDetailsByUserId(int userId) {
     return this.projectRepo.getProjectDetailsByUserId(userId);
   }
   

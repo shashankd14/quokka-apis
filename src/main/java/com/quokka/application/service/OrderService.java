@@ -10,7 +10,7 @@ public interface OrderService {
 
 	public Order add(Order order);
 	
-	public Order updateStatus(int orderId, int statusId);
+	public void updateStatus(int orderId, int statusId);
 	
 	public List<Order> getAll ();
 	

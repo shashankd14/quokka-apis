@@ -18,7 +18,7 @@ public interface UserService {
 	
 	public User verifyIfEmailIdExists(String email);
 	
-	public JSONObject getUserDetails(String userString);
+	public List<JSONObject> getUserDetails(String userString);
 	
 	
 	

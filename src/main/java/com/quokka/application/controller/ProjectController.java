@@ -187,7 +187,7 @@ public class ProjectController {
   }
   
   @GetMapping({"/listByUserId"})
-  public List<JSONObject[]> getProjectDetails(@RequestParam("userId") int userId) {
+  public List<Project> getProjectDetails(@RequestParam("userId") int userId) {
     return this.projectService.findProjectDetailsByUserId(userId);
   }
   
@@ -202,10 +202,10 @@ public class ProjectController {
   }
   
   @GetMapping({"/list"})
-  public ResponseEntity<Object> getAllProjects() {
+  public ResponseEntity<Object> getAllProjects(int userId) {
     try {
       List<JSONObject> entities = new ArrayList<>();
-      entities = this.projectService.getAllProjects();
+      entities = this.projectService.getAllProjects(userId);
       return new ResponseEntity(entities, HttpStatus.OK);
     } catch (Exception e) {
       return new ResponseEntity(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);

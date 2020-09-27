@@ -23,8 +23,8 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	@Override
-	public Order updateStatus(int orderId, int statusId) {
-		return orderRepo.updateStatus(orderId, statusId);
+	public void updateStatus(int orderId, int statusId) {
+		orderRepo.updateStatus(orderId, statusId);
 	}
 
 	@Override

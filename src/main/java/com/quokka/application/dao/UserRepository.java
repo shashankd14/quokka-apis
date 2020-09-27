@@ -20,11 +20,15 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 	@Query(nativeQuery = true, value = "SELECT * from users where email= :email")
 	public User verifyIfEmailIdExists(@Param("email") String email);
 	
-	@Query(nativeQuery = true, value = "SELECT userId from users where email = :userString")
-	public JSONObject getUserDetailsByEmailId(@Param("userString") String userString);
+	@Query(nativeQuery = true, value = "SELECT u.userId, u.email, u.username, ur.roleId from users as u " + 
+			" left join user_role as ur on u.userId = ur.userId " + 
+			" where email = :userString")
+	public List<JSONObject> getUserDetailsByEmailId(@Param("userString") String userString);
 	
-	@Query(nativeQuery = true, value = "SELECT userId from users where phone_number= :userString")
-	public JSONObject getUserDetailsByPhoneNumber(@Param("userString") String userString);
+	@Query(nativeQuery = true, value = "SELECT u.userId, u.email, u.username, ur.roleId from users as u "+
+			" left join user_role as ur on u.userId = ur.userId " +
+			" where phoneNumber = :userString")
+	public List<JSONObject> getUserDetailsByPhoneNumber(@Param("userString") String userString);
 	
 	@Query(nativeQuery = true, value = "SELECT * from users where createdBy= :createdBy")
 	public List<User>  getCustomersByManufacturer(@Param("createdBy") int createdBy);

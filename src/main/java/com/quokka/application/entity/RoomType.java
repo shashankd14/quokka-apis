@@ -23,7 +23,7 @@ public class RoomType {
   @Column(name = "roomname")
   private String roomName;
   
-  @OneToMany(mappedBy = "roomType", fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "roomType")
   @JsonBackReference
   private List<Product> product;
   

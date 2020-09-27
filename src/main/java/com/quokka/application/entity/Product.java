@@ -52,7 +52,7 @@ public class Product {
 	@Column(name = "uploadstatus")
 	private Integer uploadStatus;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "roomtype")
 	@JsonManagedReference
 	private RoomType roomType;

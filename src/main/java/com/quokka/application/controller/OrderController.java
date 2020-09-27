@@ -83,9 +83,9 @@ public class OrderController {
 		
 		try {
 			
-			Order order = orderService.updateStatus(orderId, statusId);
+			orderService.updateStatus(orderId, statusId);
 			
-			return new ResponseEntity<Object>(order, HttpStatus.OK);
+			return new ResponseEntity<Object>("status updated successfully!!", HttpStatus.OK);
 		}
 		catch (Exception e) {
 			

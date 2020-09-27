@@ -9,11 +9,11 @@ public interface ProjectService {
   
   Project findById(int paramInt);
   
-  List<JSONObject> getAllProjects();
+  List<JSONObject> getAllProjects(int userId);
   
   void deleteProject(int paramInt);
   
-  List<JSONObject[]> findProjectDetailsByUserId(int paramInt);
+  List<Project> findProjectDetailsByUserId(int paramInt);
   
   void updateProjectStatus(int paramInt);
 }

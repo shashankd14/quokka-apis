@@ -1,5 +1,6 @@
 package com.quokka.application.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -61,11 +62,11 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public JSONObject getUserDetails(String userString) {
+	public List<JSONObject> getUserDetails(String userString) {
 		
 		User user = null;
 		
-		JSONObject entity = new JSONObject();
+		List<JSONObject> entity = new ArrayList<JSONObject>();
 		if(userString.contains("@")) {
 			
 			entity = userRepo.getUserDetailsByEmailId(userString);
