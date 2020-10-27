@@ -64,6 +64,17 @@ public class UserController {
 			user.setIsDeleted(false);
 
 			User savedUser = userService.save(user);
+			
+			SimpleMailMessage msg = new SimpleMailMessage();
+			msg.setTo(email);
+
+			msg.setSubject("Welcome to Quokka!!");
+			msg.setText("Greetings!! \n Thank you for registering with quokka. "
+					+ "You can access quokka @ \n https://frontend-dot-quokka-project-alpha.uc.r.appspot.com/signup with your email address or phone number"
+					+ "and your password. \n"
+					);
+
+			javaMailSender.send(msg);
 
 			return new ResponseEntity<Object>(savedUser, HttpStatus.OK);
 
@@ -79,23 +90,20 @@ public class UserController {
 			@RequestParam("phoneNumber") String phoneNumber, 
 			@RequestParam("email") String email,
 			@RequestParam("retailerId") int createdBy,
-			@RequestParam(value= "userId", required = false, defaultValue = "0")int userId) {
+			@RequestParam(value = "userId", required = false, defaultValue = "0") int userId) {
 
 		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 
-	
 		User userEntity = null;
-		
+
 		try {
 
 			Integer otp = OTPgenerator();
 
-			
-			
-			 if(userId == 0) {
-				
+			if (userId == 0) {
+
 				User user = new User();
-				
+
 				user.setUserId(userId);
 				user.setUsername(username);
 				user.setEmail(email);
@@ -110,35 +118,30 @@ public class UserController {
 
 				user.setIsActive(false);
 				user.setIsDeleted(false);
-				
-				
 
-				 userEntity = userService.save(user);
-				 
-				 SimpleMailMessage msg = new SimpleMailMessage();
-					msg.setTo(email);
+				userEntity = userService.save(user);
 
-					msg.setSubject("Welcome to Quokka!!");
-					msg.setText("Greetings!! \n You have been invited to explore the world of quokka. "
-							+ "You can access quokka @ \n https://frontend-dot-quokka-project-alpha.uc.r.appspot.com/signup with your email address or phone number. \n"
-							+ "Your one time access code is: "
-							+ otp);
+				SimpleMailMessage msg = new SimpleMailMessage();
+				msg.setTo(email);
 
-					javaMailSender.send(msg);
+				msg.setSubject("Welcome to Quokka!!");
+				msg.setText("Greetings!! \n You have been invited to explore the world of quokka. "
+						+ "You can access quokka @ \n https://frontend-dot-quokka-project-alpha.uc.r.appspot.com/signup with your email address or phone number. \n"
+						+ "Your one time access code is: " + otp);
+
+				javaMailSender.send(msg);
 			}
-			
-			 else {
-					
-					User existinguser = userService.getById(userId);
-					existinguser.setUsername(username);
-					existinguser.setPhoneNumber(phoneNumber);
-					existinguser.setEmail(email);
-					//existinguser.setCreatedBy(createdBy);
-					userEntity = userService.save(existinguser);
-					
-				}
 
-			
+			else {
+
+				User existinguser = userService.getById(userId);
+				existinguser.setUsername(username);
+				existinguser.setPhoneNumber(phoneNumber);
+				existinguser.setEmail(email);
+				// existinguser.setCreatedBy(createdBy);
+				userEntity = userService.save(existinguser);
+
+			}
 
 			return new ResponseEntity<Object>(userEntity, HttpStatus.OK);
 
@@ -212,11 +215,6 @@ public class UserController {
 		
 }
 	
-
-	
-	
-
-
 	@GetMapping("/getById")
 	public ResponseEntity<Object> getById(@RequestParam int userId) {
 

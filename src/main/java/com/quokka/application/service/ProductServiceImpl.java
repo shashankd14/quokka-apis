@@ -54,4 +54,9 @@ public class ProductServiceImpl implements ProductService {
 	public void updateProductStatus(int productId, int statusId) {
 		this.productRepo.updateProductStatus(productId, statusId);
 	}
+
+	@Override
+	public List<Product> getAdminProductList() {
+		return productRepo.getAdminProductList();
+	}
 }

@@ -48,4 +48,9 @@ public class ProjectServiceImpl implements ProjectService {
   public void updateProjectStatus(int projectId) {
     this.projectRepo.updateProjectStatus(projectId);
   }
+
+@Override
+public List<Project> getAdminProjectList() {
+	return projectRepo.getAdminProjectList();
+}
 }

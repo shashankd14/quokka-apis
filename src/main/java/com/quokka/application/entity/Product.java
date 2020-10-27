@@ -63,8 +63,8 @@ public class Product {
 	@Column(name = "colour")
 	private String colour;
 
-	@Column(name = "frame")
-	private String frame;
+	@Column(name = "primarymaterial")
+	private String primaryMaterial;
 
 	@Column(name = "purchase_note")
 	private String purchaseNote;
@@ -96,8 +96,10 @@ public class Product {
 	@Column(name = "catalogid")
 	private int catalogId;
 
-	@Column(name = "stock")
-	private Integer stock;
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "stock")
+	@JsonManagedReference
+	private Status stock;
 
 	@Column(name = "createdby")
 	private int createdBy;
@@ -285,11 +287,12 @@ public class Product {
 		this.catalogId = catalogId;
 	}
 
-	public Integer getStock() {
-		return this.stock;
+
+	public Status getStock() {
+		return stock;
 	}
 
-	public void setStock(Integer stock) {
+	public void setStock(Status stock) {
 		this.stock = stock;
 	}
 
@@ -357,12 +360,13 @@ public class Product {
 		this.colour = colour;
 	}
 
-	public String getFrame() {
-		return this.frame;
+
+	public String getPrimaryMaterial() {
+		return primaryMaterial;
 	}
 
-	public void setFrame(String frame) {
-		this.frame = frame;
+	public void setPrimaryMaterial(String primaryMaterial) {
+		this.primaryMaterial = primaryMaterial;
 	}
 
 	public String getPurchaseNote() {

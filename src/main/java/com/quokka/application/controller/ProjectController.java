@@ -1,9 +1,14 @@
 package com.quokka.application.controller;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +26,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.googleapis.media.MediaHttpUploader;
+import com.google.api.client.http.GenericUrl;
+import com.google.api.client.http.HttpHeaders;
+import com.google.api.client.http.HttpRequestInitializer;
+import com.google.api.client.http.HttpResponse;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.InputStreamContent;
+import com.google.api.services.storage.StorageScopes;
+import com.google.auth.Credentials;
+import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
@@ -29,6 +45,7 @@ import com.google.cloud.storage.StorageOptions;
 import com.quokka.application.dao.FloorPlanRepository;
 import com.quokka.application.dao.ProjectImageRepository;
 import com.quokka.application.dao.ProjectRepository;
+import com.quokka.application.entity.Product;
 import com.quokka.application.entity.Project;
 import com.quokka.application.entity.ProjectImage;
 import com.quokka.application.service.ProjectImageService;
@@ -165,8 +182,9 @@ public class ProjectController {
   }
   
   @PutMapping({"/addAssetBundle"})
-  public String addProjectAssetBundle(@RequestParam("projectId") int projectId, @RequestParam("projectAssetBundle") MultipartFile assetBundle) {
-    String assetBundleURL = uploadToBucket(assetBundle);
+	public String addProjectAssetBundle(@RequestParam("projectId") int projectId,
+			@RequestParam("projectAssetBundle") MultipartFile assetBundle) {
+    String assetBundleURL = resumableUpload(assetBundle);
     Optional<Project> result = this.projectRepo.findById(Integer.valueOf(projectId));
     Project theProject = null;
     if (result.isPresent()) {
@@ -187,9 +205,29 @@ public class ProjectController {
   }
   
   @GetMapping({"/listByUserId"})
-  public List<Project> getProjectDetails(@RequestParam("userId") int userId) {
-    return this.projectService.findProjectDetailsByUserId(userId);
-  }
+	public ResponseEntity<Object> getProjectDetails(@RequestParam("userId") int userId) {
+
+		int[] adminArray = { 83, 84, 85 };
+
+		try {
+			
+			List<Project> projectList = new ArrayList<Project>();
+			if (Arrays.stream(adminArray).anyMatch(i -> i == userId)) {
+
+				projectList = projectService.getAdminProjectList();
+			} else {
+				
+				projectList = projectService.findProjectDetailsByUserId(userId);
+			}
+			return new ResponseEntity<Object>(projectList, HttpStatus.OK);
+		}
+		catch(Exception e) {
+			
+			return new ResponseEntity<Object>(e.getMessage(), HttpStatus.OK);
+		}
+		
+		// return this.projectService.findProjectDetailsByUserId(userId);
+	}
   
   @GetMapping({"/getById/{projectId}"})
   public ResponseEntity<Object> findById(@PathVariable int projectId) {
@@ -251,7 +289,8 @@ public class ProjectController {
 
 			Blob blob = storage.create(blobInfo, bytes);
 
-			uploadUrl = blob.getSelfLink();
+			uploadUrl = "https://storage.googleapis.com/quokka-project-uploads/"+fileName;
+			
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -259,4 +298,46 @@ public class ProjectController {
 
 		return uploadUrl;
 	}
+  
+	public String resumableUpload(MultipartFile file) {
+
+		String uploadUrl = "https://storage.googleapis.com/quokka-project-uploads/" + file.getOriginalFilename();
+		try {
+
+			
+			System.out.println("file : "+file.getOriginalFilename());
+			Credentials credentials = GoogleCredentials
+					.fromStream(new FileInputStream("src/main/resources/quokka-project-alpha-key.json"));
+			InputStreamContent mediaContent = new InputStreamContent("application/octet-stream", file.getInputStream());
+			HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+			HttpRequestInitializer httpRequestInitializer = null;
+			GenericUrl genericUrl = new GenericUrl("https://www.googleapis.com/upload/storage/v1/b/"
+					+ "quokka-project-uploads" + "/o?uploadType=resumable&name=" + file.getOriginalFilename());
+			
+			System.out.println("generic Url "+genericUrl );
+			MediaHttpUploader uploader = new MediaHttpUploader(mediaContent, httpTransport, httpRequestInitializer);
+			HttpHeaders requestHeaders = new HttpHeaders();
+			credentials = ((GoogleCredentials) credentials).createScoped(StorageScopes.all());
+			Map<String, List<String>> credentialHeaders = credentials.getRequestMetadata();
+			if (credentialHeaders == null) {
+				return "";
+			}
+			for (Map.Entry<String, List<String>> entry : credentialHeaders.entrySet()) {
+				String headerName = entry.getKey();
+				List<String> requestValues = new ArrayList<>();
+				requestValues.addAll(entry.getValue());
+				requestHeaders.put(headerName, requestValues);
+			}
+
+			HttpResponse response = uploader.setInitiationHeaders(requestHeaders).setDisableGZipContent(true)
+					.upload(genericUrl);
+
+		} catch (Exception e) {
+			return e.getMessage();
+		}
+		return uploadUrl;
+
+	}
+  
+  
 }

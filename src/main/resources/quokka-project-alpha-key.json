@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "quokka-project-alpha",
+  "private_key_id": "823d051c43b3a7b9aa4a0ff58bc58a2b67b450df",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDFNJLi7+7drNda\n/RU7al4yRA51R5MF8aWx6NluKfyDMut3YRUK0smUlgQebrgztZP/FauBWpkqWbkj\nFe0MrIB9FDmCT8vrq9ys29BJBemuW8p0PTre5f5LvORYDRNkYtDns7TLPk2P+eJA\nf7dQnJ7DOcJ7J70NpQsTmV4S5nYUsE/TtCuqyZfk8QE1bq8OBvI7pDLn5SH0T4qk\nPS1MNyWRqPUgEXVAOW101I3zOEes+NXZ4ySy4M6V63UtnaPgLSejefrsulrJ8auP\nIjBdU0K/dWGPd/MibWbK3KQk/y9lDjr7TaPxTDI57w8VhMxAapqYoVSmnKHDuOrM\nlZbCwFF/AgMBAAECggEAJIjca6Gy2auzTB6WB+dpYxubqBul/9Roc6DlY1Tw/Kd6\n2yeHu/UYNmhig/bUNnQ94mSz3OeZd7CerYLa4120Ajg0fVFmQJea7wVcPaMUS2Kj\nC8zqMrBeX86zaSKnBJKQDFUNOhglS3aqdXOT1SHnAdkaEDHpAvWgKzXfKVY76xH5\nvjqCA68SbW4VZCpPpOKqTMDsjz5v2hv4zD9WZqp69UhI8KI1srqhxUP7enX/B5Vn\nCVtsSAamvZfgvqX4eqbohEsqfDoVI7cG46PItNCPVhEajBhL293hsIGOlg6STWe6\n8aUweyem0OEq54mCWBnWhNerqOqbHraYjm1Ky0QUkQKBgQDi0VTKqocY+6B5LwHs\nMqhD+H5sIB4cdA3RKcRYV6qQdcKhoTFYUqdXgPD+Rnba7Ybv+F1J8X3QFAA3QATd\n262AO9TPD041RETgpDXpxntTI2LxGHHuQewK0VoqVYcTTwCiFjjovm1rc24R97mN\nTIOUSmB+NUQnWwlFqSZEL+h+TwKBgQDek+eMpG8b0C5uO7ZRtlP57+Ebht5D7o34\nAtLvKdqSenhVRLh84sSwZn1Q+wsrNE7v3p/kJlTHB0mpo4g9i1EQTr2Er8Bksjvn\nJYY1OVEQf8cR0nCHiRVBvLI4XyMWrawts+tOw2nk3NU6CU0pbvhVKJ+lH7CBjMdR\nSLc/lend0QKBgQCCDPaqMba+m2B6u3pFvRH/zxZl1tCNDfnyKRmccb+pjuvnEu6h\nLtsmcBc+JJb3lmPdajHLOP0jdqRdCYcA0nmb4jJ1+tej8R3xFBaZkSWbGNodVR/W\nNdQqq7kgNuP5LT42sbk1siI5DvlYsgqhOvLi7vZ+xvnp+ufJGmCHjlSnPwKBgCUF\nqw0syMJylVaGniPnVP6M1P+0JkJcasbnCVj4uD+HGX7taFZ1jcvdsFiI+WmdUMf7\nWtMjQRS99JW/+shp5Pj2b/WjGjhloSsohbNSrlY1OtKPE2Kn/Z4qmeZghMCf8LTF\naY13WaTUyq7Vnz0WFT5s/GkF5WEXHow5sSllcToRAoGBAOAALIctmlc7FFtmbsdL\nYnyzqWRqoCDSwcjDBzICP6p3WrX15mOzh3kn0AjNdF/T6Gnk1mhycclBvqEjUpKX\nTqNdqwIWNJ08F5/zjBxFSTI5nbDLvV/rUQR6JfhKEry5NzklfplpXzQsqVCwelRp\ndaZIjSOqaIla6SejvObPT0BG\n-----END PRIVATE KEY-----\n",
+  "client_email": "quokka-project-service@quokka-project-alpha.iam.gserviceaccount.com",
+  "client_id": "111392470319473492407",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/quokka-project-service%40quokka-project-alpha.iam.gserviceaccount.com"
+}

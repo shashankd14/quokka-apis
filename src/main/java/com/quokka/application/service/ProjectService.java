@@ -16,4 +16,6 @@ public interface ProjectService {
   List<Project> findProjectDetailsByUserId(int paramInt);
   
   void updateProjectStatus(int paramInt);
+  
+  public List<Project> getAdminProjectList();
 }

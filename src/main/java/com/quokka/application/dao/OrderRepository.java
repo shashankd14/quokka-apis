@@ -23,7 +23,7 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 	@Query(nativeQuery = true, value = "select o.orderId, c.quantity, o.statusId, p.* from orders as o" + 
 			"	left join cart as c on c.orderId = o.orderId" + 
 			"    left join products as p on p.productId = c.productId" + 
-			"    where o.createdby = :userId")
+			"    where o.createdby = :userId and p.productId != null")
 	List<JSONObject> getOrderItems(int userId);
 	
 }

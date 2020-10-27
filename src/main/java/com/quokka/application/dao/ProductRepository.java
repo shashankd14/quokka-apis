@@ -37,4 +37,9 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 	
 	@Query(nativeQuery = true, value = "select * from products where createdBy= :userId")
 	public  List<Product> getProductsByManufacturerId(@Param("userId") int userId);
+	
+	@Query(nativeQuery = true, value = "select * from products")
+	public  List<Product> getAdminProductList();
+	
+	
 }

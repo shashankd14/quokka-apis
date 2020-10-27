@@ -1,9 +1,10 @@
-package com.quokka.application.controller;
+ package com.quokka.application.controller;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,12 +31,14 @@ import com.quokka.application.dao.ProductCategoryRepository;
 import com.quokka.application.dao.ProductImageRepository;
 import com.quokka.application.dao.ProductRepository;
 import com.quokka.application.dao.RoomTypeRepository;
+import com.quokka.application.dao.StatusRepository;
 import com.quokka.application.dao.SubCategoryRepository;
 import com.quokka.application.dao.TagRepository;
 import com.quokka.application.entity.Product;
 import com.quokka.application.entity.ProductCategory;
 import com.quokka.application.entity.ProductImage;
 import com.quokka.application.entity.RoomType;
+import com.quokka.application.entity.Status;
 import com.quokka.application.entity.Subcategory;
 import com.quokka.application.entity.Tag;
 import com.quokka.application.service.ProductImageService;
@@ -71,30 +74,34 @@ public class ProductController {
   @Autowired
   private RoomTypeRepository roomTypeRepo;
   
+  @Autowired
+  private StatusRepository statusRepo;
+  
   @PostMapping({"/add"})
-	public ResponseEntity<Object> addProduct(@RequestParam("categoryIds") String[] categoryIds,
+	public ResponseEntity<Object> addProduct(
+			@RequestParam("categoryIds") String[] categoryIds,
 			@RequestParam(value = "subcategoryIds", required = false) String[] subcategoryIds,
 			@RequestParam("name") String name, 
-			@RequestParam("displayType") String displayType,
-			@RequestParam("description") String description, 
-			@RequestParam("brand") String brand,
-			@RequestParam("roomType") int roomType, 
+			@RequestParam(value = "displayType", required = false) String displayType,
+			@RequestParam(value = "description", required = false) String description, 
+			@RequestParam(value = "brand", required = false) String brand,
+			@RequestParam(value = "roomType", required = false) Integer roomType, 
 			@RequestParam(value = "fabric", required = false) String fabric,
 			@RequestParam(value = "color", required = false) String color,
 			@RequestParam(value = "primaryMaterial", required = false) String primaryMaterial,
 			@RequestParam(value = "purchaseNote", required = false) String purchaseNote,
-			@RequestParam("height") float height, 
-			@RequestParam("plength") float pLength,
-			@RequestParam("width") float width, 
-			@RequestParam("weight") float weight,
-			@RequestParam("materialInfo") String materialInfo, 
-			@RequestParam("price") float price,
-			@RequestParam("stock") int stock, 
+			@RequestParam(value = "height", required = false) Float height, 
+			@RequestParam(value = "plength", required = false) Float pLength,
+			@RequestParam(value = "width", required = false) Float width, 
+			@RequestParam(value = "weight", required = false) Float weight,
+			//@RequestParam("materialInfo") String materialInfo, 
+			@RequestParam(value = "price", required = false) Float price,
+			@RequestParam(value = "stock", required = false) Integer stock, 
 			@RequestParam("thumbnailImage") MultipartFile thumbnailImage,
 			@RequestParam(value = "product3DModel", required = false) MultipartFile product3DModel,
 			@RequestParam(value = "assetBundle", required = false) MultipartFile assetBundle,
 			@RequestParam(value = "tags", required = false) String[] tags,
-			@RequestParam("image") List<MultipartFile> images,
+			@RequestParam(value = "image", required = false) List<MultipartFile> images,
 			@RequestParam("userId") int userId
 			) {
 		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
@@ -115,16 +122,40 @@ public class ProductController {
 			product.setRoomType(theRoom);
 			product.setFabric(fabric);
 			product.setColour(color);
-			product.setFrame(primaryMaterial);
+			product.setPrimaryMaterial(primaryMaterial);
 			product.setPurchaseNote(purchaseNote);
+			
+			if(height != null)
 			product.setHeight(Float.valueOf(height));
+			
+			if(pLength != null)
 			product.setpLength(Float.valueOf(pLength));
+			
+			if(width != null)
 			product.setWidth(Float.valueOf(width));
+			
+			if(weight != null)
 			product.setWeight(Float.valueOf(weight));
-			product.setMaterialInfo(materialInfo);
+			
+			if(price != null)
 			product.setPrice(price);
 			product.setCatalogId(1);
-			product.setStock(Integer.valueOf(stock));
+			
+			if(stock != null) {
+				
+				Optional<Status> resultStatus = statusRepo.findById(stock);
+				Status theStatus = null;
+				if (resultStatus.isPresent()) {
+					theStatus = resultStatus.get();
+				} else {
+					throw new RuntimeException("Did not find status id ");
+				}
+				product.setStock(theStatus);
+			}
+			
+		//	product.setRoomType(theRoom);
+			
+			
 			List<ProductCategory> categoryIdList = new ArrayList<>();
 			for (int i = 0; i < categoryIds.length; i++) {
 				Optional<ProductCategory> result2 = this.productCategoryRepository
@@ -149,12 +180,16 @@ public class ProductController {
 				}
 			product.setSubCategories(subcategoryList);
 			List<Tag> tagList = new ArrayList<>();
-			for (int j = 0; j < tags.length; j++) {
-				Tag tag = new Tag();
-				tag.setTagName(tags[j]);
-				this.tagRepository.save(tag);
-				tagList.add(tag);
+			if(tags!=null) {
+				
+				for (int j = 0; j < tags.length; j++) {
+					Tag tag = new Tag();
+					tag.setTagName(tags[j]);
+					this.tagRepository.save(tag);
+					tagList.add(tag);
+				}
 			}
+			
 			product.setTags(tagList);
 			String thumbnailImageURL = uploadToBucket(thumbnailImage);
 			product.setThumbnailImageURL(thumbnailImageURL);
@@ -204,21 +239,25 @@ public class ProductController {
 	public ResponseEntity<Object> updateProduct(@RequestParam("productId") int productId,
 			@RequestParam("categoryIds") String[] categoryIds,
 			@RequestParam(value = "subcategoryIds", required = false) String[] subcategoryIds,
-			@RequestParam("name") String name, @RequestParam("displayType") String displayType,
+			@RequestParam("name") String name, 
+			@RequestParam(value = "displayType", required = false) String displayType,
 			@RequestParam("description") String description, @RequestParam("brand") String brand,
 			@RequestParam("roomType") int roomType, @RequestParam(value = "fabric", required = false) String fabric,
 			@RequestParam(value = "color", required = false) String color,
-			@RequestParam(value = "primaryMaterial", required = false) String frame,
+			@RequestParam(value = "primaryMaterial", required = false) String primaryMaterial,
 			@RequestParam(value = "purchaseNote", required = false) String purchaseNote,
-			@RequestParam("height") float height, @RequestParam("plength") float pLength,
-			@RequestParam("width") float width, @RequestParam("weight") float weight,
-			@RequestParam("materialInfo") String materialInfo, @RequestParam("price") float price,
+			@RequestParam(value = "height", required = false) float height, 
+			@RequestParam(value = "plength", required = false) float pLength,
+			@RequestParam(value = "width", required = false) float width, 
+			@RequestParam(value = "weight", required = false) float weight,
+			//@RequestParam("materialInfo") String materialInfo, 
+			@RequestParam("price") float price,
 			@RequestParam("stock") int stock, 
 			@RequestParam(value = "thumbnailImage", required = false) MultipartFile thumbnailImage,
 			@RequestParam(value = "product3DModel", required = false) MultipartFile product3DModel,
 			@RequestParam(value = "assetBundle", required = false) MultipartFile assetBundle,
 			@RequestParam(value = "tags", required = false) String[] tags,
-			@RequestParam("image") List<MultipartFile> images,
+			@RequestParam(value = "image", required = false) List<MultipartFile> images,
 			@RequestParam(value = "imageId", required = false) int[] imageIds,
 			@RequestParam("userId") int userId) {
 		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
@@ -241,16 +280,27 @@ public class ProductController {
 			product.setRoomType(theRoom);
 			product.setFabric(fabric);
 			product.setColour(color);
-			product.setFrame(frame);
+			product.setPrimaryMaterial(primaryMaterial);
 			product.setPurchaseNote(purchaseNote);
 			product.setHeight(Float.valueOf(height));
 			product.setpLength(Float.valueOf(pLength));
 			product.setWidth(Float.valueOf(width));
 			product.setWeight(Float.valueOf(weight));
-			product.setMaterialInfo(materialInfo);
+			//product.setMaterialInfo(materialInfo);
 			product.setPrice(price);
 			product.setCatalogId(1);
-			product.setStock(Integer.valueOf(stock));
+			
+			
+			Optional<Status> resultStatus = statusRepo.findById(stock);
+			Status theStatus = null;
+			if (resultStatus.isPresent()) {
+				theStatus = resultStatus.get();
+			} else {
+				throw new RuntimeException("Did not find status id ");
+			}
+		//	product.setRoomType(theRoom);
+			
+			product.setStock(theStatus);
 			List<ProductCategory> categoryIdList = new ArrayList<>();
 			for (int i = 0; i < categoryIds.length; i++) {
 				Optional<ProductCategory> resultCat = this.productCategoryRepository
@@ -366,10 +416,19 @@ public class ProductController {
   @GetMapping({"/list"})
   //@PreAuthorize()
   public ResponseEntity<Object> getAll(@RequestParam("manufacturerId") int userId) {
-    try {
-      List<Product> productList = this.productService.findAll(userId);
-      return new ResponseEntity<Object>(productList, HttpStatus.OK);
-    } catch (Exception e) {
+		try {
+
+			int[] adminArray = { 83, 84, 85 };
+
+			List<Product> productList = new ArrayList<Product>();
+			if (Arrays.stream(adminArray).anyMatch(i -> i == userId)) {
+
+				productList = productService.getAdminProductList();
+			} else {
+				productList = this.productService.findAll(userId);
+			}
+			return new ResponseEntity<Object>(productList, HttpStatus.OK);
+		} catch (Exception e) {
       return new ResponseEntity<Object>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     } 
   }
@@ -460,7 +519,7 @@ public class ProductController {
 
 			Blob blob = storage.create(blobInfo, bytes);
 
-			uploadUrl = blob.getSelfLink();
+			uploadUrl = "https://storage.googleapis.com/quokka-product-uploads/" + fileName;
 
 		} catch (IOException e) {
 			e.printStackTrace();

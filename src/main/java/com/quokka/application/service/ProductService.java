@@ -22,4 +22,6 @@ public interface ProductService {
 	public List<Product> findAll(int manufacuturerId);
 
 	public void updateProductStatus(int paramInt1, int paramInt2);
+	
+	public  List<Product> getAdminProductList();
 }
